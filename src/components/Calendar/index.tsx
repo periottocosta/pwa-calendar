@@ -1,13 +1,13 @@
 import React, { FC, ReactNode } from 'react'
 import { format, eachDayOfInterval, getDay, parse } from 'date-fns';
 import { WEEK_DAYS } from '@/utils/constants';
-import { PublicHoliday } from '@/interfaces/holidays';
+import { PublicHolidayResponse } from '@/interfaces/holidays';
 import { Badge, UncontrolledTooltip } from 'reactstrap';
 
 import "./style.scss"
 
 interface CalendarProps {
-    holidays: PublicHoliday[]
+    holidays: PublicHolidayResponse[]
     workingDays: string[]
     firstDay: Date
     lastDay: Date

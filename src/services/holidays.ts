@@ -1,7 +1,7 @@
 import { apiClient } from "@/apiClient";
 import { API, STORAGE_KEYS } from "@/utils/constants";
 import { transformHolidays } from "./transforms/holidays";
-import { PublicHoliday } from "@/interfaces/holidays";
+import { PublicHolidayResponse } from "@/interfaces/holidays";
 import { format } from "date-fns";
 import { getInfo, saveInfo } from "@/utils/storage";
 
@@ -10,7 +10,7 @@ export const getPublicHolidays = async (
     subDivision: string,
     startDate: string,
     endDate: string
-): Promise<PublicHoliday[]> => {
+): Promise<PublicHolidayResponse[]> => {
     try {
         const key = `${STORAGE_KEYS.HOLIDAYS}_${format(startDate, 'MMMM')}`
         const holidays = getInfo(key);
@@ -34,6 +34,15 @@ export const getPublicHolidays = async (
 
         return holidaysObj;
     } catch (error) {
-        throw new Error("Error fetching holidays");
+        throw error;
+    }
+};
+
+export const getSchoolHolidays = async () => {
+    try {
+        const response = await apiClient.get(API.SCHOOL_HOLIDAYS);
+        return response.data;
+    } catch (error) {
+        throw error;
     }
 };

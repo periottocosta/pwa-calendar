@@ -7,8 +7,8 @@ import { STORAGE_KEYS } from "@/utils/constants";
 import ConfigModal from "@/components/ConfigModal";
 import { UserSettings } from "@/interfaces/user";
 import { getPublicHolidays } from "@/services/holidays";
-import { addMonths, endOfMonth, format, set, startOfMonth, subDays } from "date-fns";
-import { PublicHoliday } from "@/interfaces/holidays";
+import { addMonths, endOfMonth, format, startOfMonth, subDays } from "date-fns";
+import { PublicHolidayResponse } from "@/interfaces/holidays";
 import { Button } from "reactstrap";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -26,7 +26,7 @@ const HomePage = () => {
     const [firstDayOfMonth, setFirstDayOfMonth] = useState(startOfMonth(currentDate));
 
     const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
-    const [holidays, setHolidays] = useState<PublicHoliday[]>([]);
+    const [holidays, setHolidays] = useState<PublicHolidayResponse[]>([]);
 
 
     const toggleConfigModal = () => {

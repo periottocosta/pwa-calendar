@@ -12,6 +12,3 @@ export interface PublicHolidayResponse {
     }[];
     name: Info[];
 }
-
-export interface PublicHoliday extends PublicHolidayResponse {
-}
