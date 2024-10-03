@@ -1,99 +1,148 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Wrapper from "@/components/Wrapper";
+import Calendar from "@/components/Calendar";
+import { getInfo, saveInfo } from "@/utils/storage";
+import { Country, SubDivision } from '@/interfaces/regional';
+import { STORAGE_KEYS } from "@/utils/constants";
+import ConfigModal from "@/components/ConfigModal";
+import { UserSettings } from "@/interfaces/user";
+import { getPublicHolidays } from "@/services/holidays";
+import { addMonths, endOfMonth, format, set, startOfMonth, subDays } from "date-fns";
+import { PublicHoliday } from "@/interfaces/holidays";
+import { Button } from "reactstrap";
+import { faGear } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import Image from "next/image";
-import styles from "@/styles/Home.module.css";
+const HomePage = () => {
 
-export default function Home() {
+    const [showModal, setShowModal] = useState(false);
+    const [enableCloseModal, setEnableCloseModal] = useState(true);
+    const [workingDays, setWorkingDays] = useState<string[]>([]);
+    const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+    const [selectedSubDivision, setSelectedSubDivision] = useState<SubDivision | null>(null);
+
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [lastDayOfMonth, setLastDayOfMonth] = useState(endOfMonth(currentDate));
+    const [firstDayOfMonth, setFirstDayOfMonth] = useState(startOfMonth(currentDate));
+
+    const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
+    const [holidays, setHolidays] = useState<PublicHoliday[]>([]);
+
+
+    const toggleConfigModal = () => {
+        if (enableCloseModal) setShowModal(!showModal);
+    }
+
+    const saveSettings = (
+        country: Country, subDivision: SubDivision, workingDays: string[]
+    ) => {
+        try {
+            saveInfo(JSON.stringify({
+                country,
+                subDivision,
+                workingDays
+            }), STORAGE_KEYS.USER_SETTINGS);
+            toggleConfigModal();
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    const getHolidays = async () => {
+        if (userSettings == null) return
+
+        const country = userSettings.country.isoCode
+        const subDivision = userSettings.subDivision.code
+
+        try {
+            const holidays = await getPublicHolidays(
+                country,
+                subDivision,
+                format(firstDayOfMonth, 'yyyy-MM-dd'),
+                format(lastDayOfMonth, 'yyyy-MM-dd'),
+            );
+
+            setHolidays(holidays);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    const goNext = () => {
+        const nextMonth = addMonths(startOfMonth(currentDate), 1);
+        setCurrentDate(nextMonth);
+    };
+    const goPrev = () => {
+        const prevMonth = subDays(startOfMonth(currentDate), 1);
+        setCurrentDate(prevMonth);
+    };
+
+    useEffect(() => {
+        const aux = getInfo(STORAGE_KEYS.USER_SETTINGS)
+
+        if (aux == null) {
+            setEnableCloseModal(false)
+            setShowModal(true);
+            return
+        }
+
+        const userSettings: UserSettings = JSON.parse(aux);
+
+        setUserSettings(userSettings);
+    }, []);
+
+    useEffect(() => {
+        if (userSettings == null) return;
+
+        setWorkingDays(userSettings.workingDays);
+        setSelectedCountry(userSettings.country);
+        setSelectedSubDivision(userSettings.subDivision);
+
+        getHolidays();
+    }, [userSettings]);
+
+    useEffect(() => {
+        getHolidays();
+    }, [lastDayOfMonth, firstDayOfMonth]);
+
+    useEffect(() => {
+        setLastDayOfMonth(endOfMonth(currentDate));
+        setFirstDayOfMonth(startOfMonth(currentDate));
+    }, [currentDate]);
+
     return (
-        <div
-            className={`${styles.page}`}
+        <Wrapper
+            next={goNext}
+            prev={goPrev}
+            title={format(currentDate, 'MMMM yyyy')}
         >
-            <main className={styles.main}>
-                <Image
-                    className={styles.logo}
-                    src="https://nextjs.org/icons/next.svg"
-                    alt="Next.js logo"
-                    width={180}
-                    height={38}
-                    priority
-                />
-                <ol>
-                    <li>
-                        Get started by editing <code>pages/index.tsx</code>.
-                    </li>
-                    <li>Save and see your changes instantly.</li>
-                </ol>
+            <ConfigModal
+                isOpen={showModal}
+                toggle={toggleConfigModal}
+                save={saveSettings}
+                selectedCountry={selectedCountry}
+                selectedSubDivision={selectedSubDivision}
+                workingDays={workingDays}
+                setSelectedCountry={setSelectedCountry}
+                setSelectedSubDivision={setSelectedSubDivision}
+                setWorkingDays={setWorkingDays}
+            />
 
-                <div className={styles.ctas}>
-                    <a
-                        className={styles.primary}
-                        href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <Image
-                            className={styles.logo}
-                            src="https://nextjs.org/icons/vercel.svg"
-                            alt="Vercel logomark"
-                            width={20}
-                            height={20}
-                        />
-                        Deploy now
-                    </a>
-                    <a
-                        href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.secondary}
-                    >
-                        Read our docs
-                    </a>
-                </div>
-            </main>
-            <footer className={styles.footer}>
-                <a
-                    href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <Image
-                        aria-hidden
-                        src="https://nextjs.org/icons/file.svg"
-                        alt="File icon"
-                        width={16}
-                        height={16}
-                    />
-                    Learn
-                </a>
-                <a
-                    href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <Image
-                        aria-hidden
-                        src="https://nextjs.org/icons/window.svg"
-                        alt="Window icon"
-                        width={16}
-                        height={16}
-                    />
-                    Examples
-                </a>
-                <a
-                    href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <Image
-                        aria-hidden
-                        src="https://nextjs.org/icons/globe.svg"
-                        alt="Globe icon"
-                        width={16}
-                        height={16}
-                    />
-                    Go to nextjs.org →
-                </a>
-            </footer>
-        </div>
+            <Calendar
+                holidays={holidays}
+                workingDays={workingDays}
+                firstDay={firstDayOfMonth}
+                lastDay={lastDayOfMonth}
+            />
+
+            <Button
+                className="btn-float-config"
+                onClick={toggleConfigModal}
+            >
+                <FontAwesomeIcon icon={faGear} />
+            </Button>
+        </Wrapper>
     );
 }
+
+export default HomePage;
