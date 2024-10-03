@@ -16,3 +16,12 @@ export const API = {
     COUNTRY: "/countries",
     SUB_DIVISION: "/subdivisions",
 }
+
+export const STORAGE_KEYS = {
+    COUNTRY: "COUNTRY",
+    USER_SETTINGS: "USER_SETTINGS",
+    ALL_COUNTRIES: "ALL_COUNTRIES",
+    SUB_DIVISION: "SUB_DIVISION",
+    HOLIDAYS: "HOLIDAYS",
+    ALL_SUB_DIVISIONS: "ALL_SUB_DIVISIONS",
+}
