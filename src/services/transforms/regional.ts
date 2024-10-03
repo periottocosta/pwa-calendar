@@ -9,7 +9,7 @@ export const transformCountries = (data: RegionalResponse[]): Country[] => {
                 isoCode: item.isoCode,
                 officialLanguages: item.officialLanguages
             }
-        });
+        }).sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
         throw error;
     }
@@ -26,7 +26,7 @@ export const transformSubDivisions = (data: SubDivisionResponse[]): SubDivision[
                 category: item.category[0].text,
                 officialLanguages: item.officialLanguages
             }
-        });
+        }).sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
         throw error;
     }

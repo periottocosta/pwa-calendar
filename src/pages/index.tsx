@@ -42,7 +42,7 @@ const HomePage = () => {
                 subDivision,
                 workingDays
             }), STORAGE_KEYS.USER_SETTINGS);
-            toggleConfigModal();
+            setShowModal(!showModal);
         } catch (error) {
             throw error;
         }
@@ -94,6 +94,7 @@ const HomePage = () => {
     useEffect(() => {
         if (userSettings == null) return;
 
+        setEnableCloseModal(true);
         setWorkingDays(userSettings.workingDays);
         setSelectedCountry(userSettings.country);
         setSelectedSubDivision(userSettings.subDivision);
