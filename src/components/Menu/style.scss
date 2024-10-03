@@ -1,0 +1,10 @@
+@import "~bootstrap/scss/bootstrap-utilities";
+
+.navbar-expand .navbar-nav {
+    position: relative;
+
+    .nav-link {
+        padding: 0 !important;
+        width: 20px;
+    }
+}
